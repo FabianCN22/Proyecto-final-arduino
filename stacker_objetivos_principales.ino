@@ -35,13 +35,11 @@ unsigned char makeBlock(int x, int width);
 int countBits(unsigned char value);
 int firstBit(unsigned char value);
 
-void setup(void)
-{
+void setup(void){
   int i;
 
   pinMode(BUTTON_PIN, INPUT_PULLUP);
-  for (i = 0; i < MATRIX_COUNT; i++)
-  {
+  for (i = 0; i < MATRIX_COUNT; i++){
     lc.shutdown(i, false);
     lc.setIntensity(i, 8);
     lc.clearDisplay(i);
@@ -49,22 +47,17 @@ void setup(void)
   resetGame();
 }
 
-void loop(void)
-{
-  if (gameOver || win)
-  {
+void loop(void){
+  if (gameOver || win){
     delay(1000);
     resetGame();
   }
-  if (millis() - lastMoveTime >= 180)
-  {
+  if (millis() - lastMoveTime >= 180){
     lastMoveTime = millis();
     moveBlock();
   }
-  if (digitalRead(BUTTON_PIN) == LOW)
-  {
-    if (millis() - lastButtonTime > 250)
-    {
+  if (digitalRead(BUTTON_PIN) == LOW){
+    if (millis() - lastButtonTime > 250){
       lastButtonTime = millis();
       placeBlock();
     }
@@ -72,12 +65,10 @@ void loop(void)
   drawGame();
 }
 
-void resetGame(void)
-{
+void resetGame(void){
   int i;
 
-  for (i = 0; i < HEIGHT; i++)
-  {
+  for (i = 0; i < HEIGHT; i++){
     tower[i] = 0;
   }
   currentLevel = 0;
@@ -91,38 +82,30 @@ void resetGame(void)
   clearAll();
 }
 
-void moveBlock(void)
-{
+void moveBlock(void){
   blockX = blockX + direction;
-
-  if (blockX <= 0)
-  {
+  if (blockX <= 0){
     blockX = 0;
     direction = 1;
   }
-  if (blockX + blockWidth >= WIDTH)
-  {
+  if (blockX + blockWidth >= WIDTH){
     blockX = WIDTH - blockWidth;
     direction = -1;
   }
 }
 
-void placeBlock(void)
-{
+void placeBlock(void){
   unsigned char currentBlock;
   unsigned char resultBlock;
 
   currentBlock = makeBlock(blockX, blockWidth);
-  if (currentLevel == 0)
-  {
+  if (currentLevel == 0){
     resultBlock = currentBlock;
   }
-  else
-  {
+  else{
     resultBlock = currentBlock & tower[currentLevel - 1];
   }
-  if (resultBlock == 0)
-  {
+  if (resultBlock == 0){
     gameOver = 1;
     return;
   }
@@ -131,38 +114,31 @@ void placeBlock(void)
   blockX = firstBit(resultBlock);
   direction = 1;
   currentLevel++;
-  if (currentLevel >= HEIGHT)
-  {
+  if (currentLevel >= HEIGHT){
     win = 1;
   }
 }
 
-void drawGame(void)
-{
+void drawGame(void){
   int y;
   int x;
   unsigned char rowData;
 
   clearAll();
-  for (y = 0; y < HEIGHT; y++)
-  {
+  for (y = 0; y < HEIGHT; y++){
     rowData = tower[y];
-    if (y == currentLevel && !gameOver && !win)
-    {
+    if (y == currentLevel && !gameOver && !win){
       rowData = makeBlock(blockX, blockWidth);
     }
-    for (x = 0; x < WIDTH; x++)
-    {
-      if (rowData & (1 << x))
-      {
+    for (x = 0; x < WIDTH; x++){
+      if (rowData & (1 << x)){
         setPixel(x, y, 1);
       }
     }
   }
 }
 
-void setPixel(int x, int y, int state)
-{
+void setPixel(int x, int y, int state){
   int physicalRow;
   int physicalCol;
   physicalRow = x;
@@ -170,56 +146,45 @@ void setPixel(int x, int y, int state)
   lc.setLed(0, physicalRow, physicalCol, state);
 }
 
-void clearAll(void)
-{
+void clearAll(void){
   int i;
 
-  for (i = 0; i < MATRIX_COUNT; i++)
-  {
+  for (i = 0; i < MATRIX_COUNT; i++){
     lc.clearDisplay(i);
   }
 }
 
-unsigned char makeBlock(int x, int width)
-{
+unsigned char makeBlock(int x, int width){
   unsigned char block;
   int i;
 
   block = 0;
-  for (i = 0; i < width; i++)
-  {
+  for (i = 0; i < width; i++){
     block = block | (1 << (x + i));
   }
   return block;
 }
 
-int countBits(unsigned char value)
-{
+int countBits(unsigned char value){
   int i;
   int count;
 
   count = 0;
-  for (i = 0; i < WIDTH; i++)
-  {
-    if (value & (1 << i))
-    {
+  for (i = 0; i < WIDTH; i++){
+    if (value & (1 << i)){
       count++;
     }
   }
   return count;
 }
 
-int firstBit(unsigned char value)
-{
+int firstBit(unsigned char value){
   int i;
 
-  for (i = 0; i < WIDTH; i++)
-  {
-    if (value & (1 << i))
-    {
+  for (i = 0; i < WIDTH; i++){
+    if (value & (1 << i)){
       return i;
     }
   }
-
   return 0;
 }
